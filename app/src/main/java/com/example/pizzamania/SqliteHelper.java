@@ -99,6 +99,32 @@ public class SqliteHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    public Cursor getProductById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM product WHERE product_ID=?", new String[]{String.valueOf(id)});
+    }
+
+    // Update product
+    public int updateProduct(int id, String name, String description, double price, byte[] image) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("description", description);
+        values.put("price", price);
+        values.put("image", image);
+        int rows = db.update("product", values, "product_ID=?", new String[]{String.valueOf(id)});
+        db.close();
+        return rows;
+    }
+
+    // Delete product
+    public int deleteProduct(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rows = db.delete("product", "product_ID=?", new String[]{String.valueOf(id)});
+        db.close();
+        return rows;
+    }
+
     public Cursor getAllProducts() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM product", null);
@@ -118,9 +144,13 @@ public class SqliteHelper extends SQLiteOpenHelper {
 
     public Cursor getCartItems(int customerId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT c.cart_ID, p.name, p.price, c.quantity, p.image " +
-                "FROM cart c JOIN product p ON c.product_ID = p.product_ID " +
-                "WHERE c.customer_ID = ?", new String[]{String.valueOf(customerId)});
+
+        return db.rawQuery(
+                "SELECT c.cart_ID, p.name, p.price, c.quantity, p.image " +
+                        "FROM cart c JOIN product p ON c.product_ID = p.product_ID " +
+                        "WHERE c.customer_ID = ?",
+                new String[]{String.valueOf(customerId)}
+        );
     }
 
     public void clearCart(int customerId) {
