@@ -1,6 +1,7 @@
 package com.example.pizzamania;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -22,7 +23,7 @@ import java.io.ByteArrayOutputStream;
 public class ProductAddActivity extends AppCompatActivity {
 
     EditText editName, editDesc, editPrice;
-    Button btnChooseImage, btnAdd;
+    Button btnChooseImage, btnAdd, btnViewProducts;
     ImageView preview;
     Bitmap selectedBitmap;
     SqliteHelper db;
@@ -37,9 +38,7 @@ public class ProductAddActivity extends AppCompatActivity {
     // Image picker launcher (GetContent)
     private final ActivityResultLauncher<String> imagePicker =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-                if (uri != null) {
-                    handlePickedImage(uri);
-                }
+                if (uri != null) handlePickedImage(uri);
             });
 
     @Override
@@ -47,59 +46,30 @@ public class ProductAddActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_add);
 
+        // Initialize views
         editName = findViewById(R.id.editName);
         editDesc = findViewById(R.id.editDesc);
         editPrice = findViewById(R.id.editPrice);
         btnChooseImage = findViewById(R.id.btnChooseImage);
         btnAdd = findViewById(R.id.btnAdd);
+        btnViewProducts = findViewById(R.id.btnViewProducts);
         preview = findViewById(R.id.productImage);
 
         db = new SqliteHelper(this);
 
+        // Set click listeners
         btnChooseImage.setOnClickListener(v -> checkPermissionAndPick());
 
-        btnAdd.setOnClickListener(v -> {
-            String name = editName.getText().toString().trim();
-            String desc = editDesc.getText().toString().trim();
-            String priceStr = editPrice.getText().toString().trim();
+        btnAdd.setOnClickListener(v -> addProduct());
 
-            if (name.isEmpty() || priceStr.isEmpty() || selectedBitmap == null) {
-                Toast.makeText(this, "Please fill name, price and choose image", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            double price;
-            try {
-                price = Double.parseDouble(priceStr);
-            } catch (NumberFormatException ex) {
-                Toast.makeText(this, "Enter valid price", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            byte[] imgBytes = bitmapToBytes(selectedBitmap);
-
-            // ✅ Call insertProduct from SqliteHelper
-            long inserted = db.insertProduct(name, desc, price, imgBytes);
-
-            if (inserted != -1) {
-                Toast.makeText(this, "Product added successfully!", Toast.LENGTH_SHORT).show();
-
-                // Clear fields after adding
-                editName.setText("");
-                editDesc.setText("");
-                editPrice.setText("");
-                preview.setImageBitmap(null);
-                selectedBitmap = null;
-
-            } else {
-                Toast.makeText(this, "Error adding product", Toast.LENGTH_SHORT).show();
-            }
+        btnViewProducts.setOnClickListener(v -> {
+            Intent intent = new Intent(ProductAddActivity.this, ProductList.class);
+            startActivity(intent);
         });
     }
 
     private void checkPermissionAndPick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ permission name READ_MEDIA_IMAGES
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
                 openGallery();
             } else {
@@ -128,9 +98,47 @@ public class ProductAddActivity extends AppCompatActivity {
         }
     }
 
+    private void addProduct() {
+        String name = editName.getText().toString().trim();
+        String desc = editDesc.getText().toString().trim();
+        String priceStr = editPrice.getText().toString().trim();
+
+        if (name.isEmpty() || priceStr.isEmpty() || selectedBitmap == null) {
+            Toast.makeText(this, "Please fill name, price and choose image", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double price;
+        try {
+            price = Double.parseDouble(priceStr);
+        } catch (NumberFormatException ex) {
+            Toast.makeText(this, "Enter valid price", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        byte[] imgBytes = bitmapToBytes(selectedBitmap);
+
+        long inserted = db.insertProduct(name, desc, price, imgBytes);
+
+        if (inserted != -1) {
+            Toast.makeText(this, "Product added successfully!", Toast.LENGTH_SHORT).show();
+            clearFields();
+        } else {
+            Toast.makeText(this, "Error adding product", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private byte[] bitmapToBytes(Bitmap bmp) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 85, bos);
         return bos.toByteArray();
+    }
+
+    private void clearFields() {
+        editName.setText("");
+        editDesc.setText("");
+        editPrice.setText("");
+        preview.setImageBitmap(null);
+        selectedBitmap = null;
     }
 }

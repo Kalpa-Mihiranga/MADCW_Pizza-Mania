@@ -15,7 +15,7 @@ public class AdminLogin extends AppCompatActivity {
     Button btnLogin;
 
     // demo credentials (change to secure storage later)
-    private final String ADMIN_EMAIL = "admin@pizza.com";
+    private final String ADMIN_EMAIL = "admin";
     private final String ADMIN_PASSWORD = "12345";
 
     @Override

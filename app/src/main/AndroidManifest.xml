@@ -1,6 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Permissions: Must be outside <application> -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -15,32 +15,49 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PizzaMania"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ProductList"
+            android:exported="false" />
         <!-- Admin Activities -->
-        <activity android:name=".AdminLogin" android:exported="false"/>
-        <activity android:name=".AdminDashboard" android:exported="false"/>
-        <activity android:name=".ProductAddActivity" android:exported="false"/>
-
-        <!-- Customer Activities -->
-        <activity android:name=".CustomerDashboard" android:exported="false"/>
-        <activity android:name=".ProductDetailActivity" android:exported="false"/>
-        <activity android:name=".CartActivity" android:exported="false"/>
-        <activity android:name=".CheckoutActivity" android:exported="false"/>
-
-        <!-- User Authentication -->
-        <activity android:name=".UserRegister" android:exported="false"/>
-        <activity android:name=".UserLogin" android:exported="true"/>
-
-        <!-- Launcher Activity -->
-        <activity android:name=".Selection" android:exported="true">
+        <activity
+            android:name=".AdminLogin"
+            android:exported="false" />
+        <activity
+            android:name=".AdminDashboard"
+            android:exported="false" />
+        <activity
+            android:name=".ProductAddActivity"
+            android:exported="false" /> <!-- Customer Activities -->
+        <activity
+            android:name=".CustomerDashboard"
+            android:exported="false" />
+        <activity
+            android:name=".ProductDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CheckoutActivity"
+            android:exported="false" /> <!-- User Authentication -->
+        <activity
+            android:name=".UserRegister"
+            android:exported="false" />
+        <activity
+            android:name=".UserLogin"
+            android:exported="true" /> <!-- Launcher Activity -->
+        <activity
+            android:name=".Selection"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Main Activity -->
-        <activity android:name=".MainActivity" android:exported="true"/>
-
+        </activity> <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
     </application>
+
 </manifest>
