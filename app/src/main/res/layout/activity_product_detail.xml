@@ -9,6 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Product Image -->
+        <ImageView
+            android:id="@+id/imgProduct"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="centerCrop"
+            android:background="#eeeeee"
+            android:layout_marginBottom="12dp"/>
+
         <TextView
             android:id="@+id/txtProductName"
             android:layout_width="match_parent"
@@ -40,6 +49,5 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add to Cart"/>
-
     </LinearLayout>
 </ScrollView>
