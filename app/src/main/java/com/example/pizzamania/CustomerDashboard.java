@@ -3,24 +3,19 @@ package com.example.pizzamania;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
 public class CustomerDashboard extends AppCompatActivity {
 
-    ListView listViewProducts;
-    ArrayList<String> productNames;
-    ArrayList<String> productDescriptions;
+    RecyclerView recyclerView;
+    ArrayList<String> productNames, productDescriptions;
     ArrayList<byte[]> productImages;
-    ArrayList<Double> smallPrices;
-    ArrayList<Double> mediumPrices;
-    ArrayList<Double> largePrices;
-
+    ArrayList<Double> smallPrices, mediumPrices, largePrices;
     SqliteHelper dbHelper;
 
     @Override
@@ -28,7 +23,9 @@ public class CustomerDashboard extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer_dashboard);
 
-        listViewProducts = findViewById(R.id.listViewProducts);
+        recyclerView = findViewById(R.id.recyclerViewProducts);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columns
+
         dbHelper = new SqliteHelper(this);
 
         loadProductsFromDB();
@@ -37,22 +34,23 @@ public class CustomerDashboard extends AppCompatActivity {
                 this,
                 productNames,
                 productDescriptions,
-                productImages
+                productImages,
+                smallPrices,
+                mediumPrices,
+                largePrices
         );
-        listViewProducts.setAdapter(adapter);
 
-        listViewProducts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(CustomerDashboard.this, ProductDetailActivity.class);
-                intent.putExtra("name", productNames.get(position));
-                intent.putExtra("description", productDescriptions.get(position));
-                intent.putExtra("smallPrice", smallPrices.get(position));
-                intent.putExtra("mediumPrice", mediumPrices.get(position));
-                intent.putExtra("largePrice", largePrices.get(position));
-                intent.putExtra("image", productImages.get(position));
-                startActivity(intent);
-            }
+        recyclerView.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(position -> {
+            Intent intent = new Intent(CustomerDashboard.this, ProductDetailActivity.class);
+            intent.putExtra("name", productNames.get(position));
+            intent.putExtra("description", productDescriptions.get(position));
+            intent.putExtra("smallPrice", smallPrices.get(position));
+            intent.putExtra("mediumPrice", mediumPrices.get(position));
+            intent.putExtra("largePrice", largePrices.get(position));
+            intent.putExtra("image", productImages.get(position));
+            startActivity(intent);
         });
     }
 

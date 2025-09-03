@@ -13,8 +13,8 @@
         android:textStyle="bold"
         android:paddingBottom="8dp"/>
 
-    <ListView
-        android:id="@+id/listViewProducts"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewProducts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </LinearLayout>
