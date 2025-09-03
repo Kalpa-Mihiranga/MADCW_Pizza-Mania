@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/editName"
+            android:hint="Product name (e.g., Margherita)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/editDesc"
+            android:hint="Description (optional)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/>
+
+        <EditText
+            android:id="@+id/editPrice"
+            android:hint="Base price (Rs)"
+            android:inputType="numberDecimal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"/>
+
+        <Button
+            android:id="@+id/btnChooseImage"
+            android:text="Choose image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"/>
+
+        <ImageView
+            android:id="@+id/productImage"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginTop="12dp"
+            android:scaleType="centerCrop"
+            android:background="#eeeeee"/>
+
+        <Button
+            android:id="@+id/btnAdd"
+            android:text="Add Product"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>

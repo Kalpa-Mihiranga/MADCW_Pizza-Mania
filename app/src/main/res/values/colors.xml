@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC5</color>
+
+
+        <!-- Brand Colors -->
+        <color name="pizza_red">#E53935</color>
+        <color name="pizza_green">#388E3C</color>
+        <color name="pizza_black">#000000</color>
+        <color name="pizza_white">#FFFFFF</color>
+
+        <!-- Variations -->
+        <color name="pizza_red_dark">#B71C1C</color>
+        <color name="pizza_green_dark">#2E7D32</color>
+        <color name="pizza_grey">#F5F5F5</color>
+
+        <!-- Primary Theme -->
+        <color name="colorPrimary">#E53935</color>       <!-- Red -->
+        <color name="colorPrimaryVariant">#B71C1C</color>
+        <color name="colorSecondary">#388E3C</color>     <!-- Green -->
+        <color name="colorSecondaryVariant">#2E7D32</color>
+        <color name="colorAccent">#388E3C</color>
+        <color name="colorOnPrimary">#FFFFFF</color>     <!-- Text on red -->
+        <color name="colorOnSecondary">#FFFFFF</color>   <!-- Text on green -->
+        <color name="colorBackground">#FFFFFF</color>    <!-- White background -->
+        <color name="colorOnBackground">#000000</color>  <!-- Black text -->
+
+
+
+</resources>
