@@ -9,6 +9,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Product Image -->
+        <ImageView
+            android:id="@+id/imgProduct"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="centerCrop"
+            android:background="#eeeeee"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Product Name -->
         <TextView
             android:id="@+id/txtProductName"
             android:layout_width="match_parent"
@@ -18,6 +28,7 @@
             android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
 
+        <!-- Price -->
         <TextView
             android:id="@+id/txtProductPrice"
             android:layout_width="match_parent"
@@ -25,21 +36,81 @@
             android:text="Rs. 0"
             android:textSize="20sp"
             android:textColor="@android:color/holo_red_dark"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="12dp"/>
 
+        <!-- Size Selection -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Size:"
+            android:textStyle="bold"/>
+
+        <RadioGroup
+            android:id="@+id/rgSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <RadioButton
+                android:id="@+id/rbSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Small"/>
+
+            <RadioButton
+                android:id="@+id/rbMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Medium"/>
+
+            <RadioButton
+                android:id="@+id/rbLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Large"/>
+        </RadioGroup>
+
+        <!-- Toppings -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Toppings:"
+            android:textStyle="bold"/>
+
+        <CheckBox
+            android:id="@+id/cbCheese"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Extra Cheese (+100)"/>
+
+        <CheckBox
+            android:id="@+id/cbOlives"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Olives (+80)"/>
+
+        <CheckBox
+            android:id="@+id/cbSausage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sausage (+150)"/>
+
+        <!-- Product Description -->
         <TextView
             android:id="@+id/txtProductDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Product Description"
             android:textSize="16sp"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="16dp"/>
 
+        <!-- Add to Cart Button -->
         <Button
             android:id="@+id/btnAddToCart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add to Cart"/>
-
     </LinearLayout>
 </ScrollView>

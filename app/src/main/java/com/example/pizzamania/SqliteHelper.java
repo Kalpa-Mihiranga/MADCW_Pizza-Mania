@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SqliteHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "PizzaMania";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     public SqliteHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -38,7 +38,9 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 "product_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "name TEXT, " +
                 "description TEXT, " +
-                "price REAL, " +
+                "smallPrice REAL, " +
+                "mediumPrice REAL," +
+                "largePrice REAL," +
                 "image BLOB)";
         db.execSQL(productTable);
 
@@ -88,17 +90,20 @@ public class SqliteHelper extends SQLiteOpenHelper {
 
     // ---------------- Products ----------------
     // Add product
-    public long insertProduct(String name, String description, double price, byte[] image) {
+    public long insertProduct(String name, String description, double smallPrice,double mediumPrice,double largePrice, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
         values.put("description", description);
-        values.put("price", price);
-        values.put("image", image); // store image as BLOB
+        values.put("smallPrice", smallPrice);
+        values.put("mediumPrice", mediumPrice);
+        values.put("largePrice", largePrice);
+        values.put("image", image);
         long result = db.insert("product", null, values);
         db.close();
         return result;
     }
+
 
     // Get all products
     public Cursor getAllProducts() {
@@ -112,13 +117,16 @@ public class SqliteHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM product WHERE product_ID=?", new String[]{String.valueOf(id)});
     }
 
-    // Update product
-    public int updateProduct(int id, String name, String description, double price, byte[] image) {
+    // Update product (support all sizes)
+    public int updateProduct(int id, String name, String description,
+                             double smallPrice, double mediumPrice, double largePrice, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
         values.put("description", description);
-        values.put("price", price);
+        values.put("smallPrice", smallPrice);
+        values.put("mediumPrice", mediumPrice);
+        values.put("largePrice", largePrice);
         values.put("image", image);
         int rows = db.update("product", values, "product_ID=?", new String[]{String.valueOf(id)});
         db.close();

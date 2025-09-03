@@ -22,7 +22,7 @@ import java.io.ByteArrayOutputStream;
 
 public class ProductAddActivity extends AppCompatActivity {
 
-    EditText editName, editDesc, editPrice;
+    EditText editName, editDesc, editSmallPrice, editMediumPrice, editLargePrice;
     Button btnChooseImage, btnAdd, btnViewProducts;
     ImageView preview;
     Bitmap selectedBitmap;
@@ -35,7 +35,7 @@ public class ProductAddActivity extends AppCompatActivity {
                 else Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
             });
 
-    // Image picker launcher (GetContent)
+    // Image picker launcher
     private final ActivityResultLauncher<String> imagePicker =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri != null) handlePickedImage(uri);
@@ -49,7 +49,9 @@ public class ProductAddActivity extends AppCompatActivity {
         // Initialize views
         editName = findViewById(R.id.editName);
         editDesc = findViewById(R.id.editDesc);
-        editPrice = findViewById(R.id.editPrice);
+        editSmallPrice = findViewById(R.id.editSmallPrice);
+        editMediumPrice = findViewById(R.id.editMediumPrice);
+        editLargePrice = findViewById(R.id.editLargePrice);
         btnChooseImage = findViewById(R.id.btnChooseImage);
         btnAdd = findViewById(R.id.btnAdd);
         btnViewProducts = findViewById(R.id.btnViewProducts);
@@ -57,11 +59,13 @@ public class ProductAddActivity extends AppCompatActivity {
 
         db = new SqliteHelper(this);
 
-        // Set click listeners
+        // Choose image
         btnChooseImage.setOnClickListener(v -> checkPermissionAndPick());
 
+        // Add product
         btnAdd.setOnClickListener(v -> addProduct());
 
+        // View products
         btnViewProducts.setOnClickListener(v -> {
             Intent intent = new Intent(ProductAddActivity.this, ProductList.class);
             startActivity(intent);
@@ -101,24 +105,28 @@ public class ProductAddActivity extends AppCompatActivity {
     private void addProduct() {
         String name = editName.getText().toString().trim();
         String desc = editDesc.getText().toString().trim();
-        String priceStr = editPrice.getText().toString().trim();
+        String smallStr = editSmallPrice.getText().toString().trim();
+        String mediumStr = editMediumPrice.getText().toString().trim();
+        String largeStr = editLargePrice.getText().toString().trim();
 
-        if (name.isEmpty() || priceStr.isEmpty() || selectedBitmap == null) {
-            Toast.makeText(this, "Please fill name, price and choose image", Toast.LENGTH_SHORT).show();
+        if (name.isEmpty() || smallStr.isEmpty() || mediumStr.isEmpty() || largeStr.isEmpty() || selectedBitmap == null) {
+            Toast.makeText(this, "Fill all fields and choose image", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        double price;
+        double smallPrice, mediumPrice, largePrice;
         try {
-            price = Double.parseDouble(priceStr);
+            smallPrice = Double.parseDouble(smallStr);
+            mediumPrice = Double.parseDouble(mediumStr);
+            largePrice = Double.parseDouble(largeStr);
         } catch (NumberFormatException ex) {
-            Toast.makeText(this, "Enter valid price", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Enter valid numbers", Toast.LENGTH_SHORT).show();
             return;
         }
 
         byte[] imgBytes = bitmapToBytes(selectedBitmap);
 
-        long inserted = db.insertProduct(name, desc, price, imgBytes);
+        long inserted = db.insertProduct(name, desc, smallPrice, mediumPrice, largePrice, imgBytes);
 
         if (inserted != -1) {
             Toast.makeText(this, "Product added successfully!", Toast.LENGTH_SHORT).show();
@@ -137,7 +145,9 @@ public class ProductAddActivity extends AppCompatActivity {
     private void clearFields() {
         editName.setText("");
         editDesc.setText("");
-        editPrice.setText("");
+        editSmallPrice.setText("");
+        editMediumPrice.setText("");
+        editLargePrice.setText("");
         preview.setImageBitmap(null);
         selectedBitmap = null;
     }

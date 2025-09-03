@@ -9,12 +9,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 
@@ -46,50 +42,67 @@ public class ProductList extends AppCompatActivity {
         productIds = new ArrayList<>();
 
         var cursor = db.getAllProducts();
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow("product_ID"));
                 String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
                 productIds.add(id);
                 productNames.add(name);
-            } while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productNames);
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productNames);
         listView.setAdapter(adapter);
     }
 
     private void showEditDeleteDialog(int productId) {
         var cursor = db.getAllProducts();
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
-                if(cursor.getInt(cursor.getColumnIndexOrThrow("product_ID")) == productId) {
+                if (cursor.getInt(cursor.getColumnIndexOrThrow("product_ID")) == productId) {
                     String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
                     String desc = cursor.getString(cursor.getColumnIndexOrThrow("description"));
-                    double price = cursor.getDouble(cursor.getColumnIndexOrThrow("price"));
+                    double smallPrice = cursor.getDouble(cursor.getColumnIndexOrThrow("smallPrice"));
+                    double mediumPrice = cursor.getDouble(cursor.getColumnIndexOrThrow("mediumPrice"));
+                    double largePrice = cursor.getDouble(cursor.getColumnIndexOrThrow("largePrice"));
                     byte[] image = cursor.getBlob(cursor.getColumnIndexOrThrow("image"));
 
-                    showEditDialog(productId, name, desc, price, image);
+                    showEditDialog(productId, name, desc, smallPrice, mediumPrice, largePrice, image);
                     break;
                 }
-            } while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
     }
 
-    private void showEditDialog(int id, String name, String desc, double price, byte[] image) {
+    private void showEditDialog(int id, String name, String desc,
+                                double smallPrice, double mediumPrice, double largePrice, byte[] image) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Edit/Delete Product");
 
         EditText etName = new EditText(this);
+        etName.setHint("Name");
         etName.setText(name);
-        EditText etDesc = new EditText(this);
-        etDesc.setText(desc);
-        EditText etPrice = new EditText(this);
-        etPrice.setText(String.valueOf(price));
 
-        Bitmap bmp = BitmapFactory.decodeByteArray(image,0,image.length);
+        EditText etDesc = new EditText(this);
+        etDesc.setHint("Description");
+        etDesc.setText(desc);
+
+        EditText etSmallPrice = new EditText(this);
+        etSmallPrice.setHint("Small Price");
+        etSmallPrice.setText(String.valueOf(smallPrice));
+
+        EditText etMediumPrice = new EditText(this);
+        etMediumPrice.setHint("Medium Price");
+        etMediumPrice.setText(String.valueOf(mediumPrice));
+
+        EditText etLargePrice = new EditText(this);
+        etLargePrice.setHint("Large Price");
+        etLargePrice.setText(String.valueOf(largePrice));
+
+        Bitmap bmp = BitmapFactory.decodeByteArray(image, 0, image.length);
         ImageView iv = new ImageView(this);
         iv.setImageBitmap(bmp);
 
@@ -98,7 +111,9 @@ public class ProductList extends AppCompatActivity {
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
         layout.addView(etName);
         layout.addView(etDesc);
-        layout.addView(etPrice);
+        layout.addView(etSmallPrice);
+        layout.addView(etMediumPrice);
+        layout.addView(etLargePrice);
         layout.addView(iv);
 
         builder.setView(layout);
@@ -106,18 +121,25 @@ public class ProductList extends AppCompatActivity {
         builder.setPositiveButton("Update", (dialog, which) -> {
             String newName = etName.getText().toString().trim();
             String newDesc = etDesc.getText().toString().trim();
-            double newPrice;
-            try { newPrice = Double.parseDouble(etPrice.getText().toString().trim()); }
-            catch(Exception e){ Toast.makeText(this,"Invalid price",Toast.LENGTH_SHORT).show(); return; }
 
-            db.updateProduct(id, newName, newDesc, newPrice, image);
-            Toast.makeText(this,"Product updated!",Toast.LENGTH_SHORT).show();
+            double newSmall, newMedium, newLarge;
+            try {
+                newSmall = Double.parseDouble(etSmallPrice.getText().toString().trim());
+                newMedium = Double.parseDouble(etMediumPrice.getText().toString().trim());
+                newLarge = Double.parseDouble(etLargePrice.getText().toString().trim());
+            } catch (Exception e) {
+                Toast.makeText(this, "Invalid price(s)", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            db.updateProduct(id, newName, newDesc, newSmall, newMedium, newLarge, image);
+            Toast.makeText(this, "Product updated!", Toast.LENGTH_SHORT).show();
             loadProducts();
         });
 
         builder.setNegativeButton("Delete", (dialog, which) -> {
             db.deleteProduct(id);
-            Toast.makeText(this,"Product deleted!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Product deleted!", Toast.LENGTH_SHORT).show();
             loadProducts();
         });
 
