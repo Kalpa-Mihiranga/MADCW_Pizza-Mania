@@ -1,6 +1,7 @@
 package com.example.pizzamania;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,6 +18,7 @@ public class CustomerDashboard extends AppCompatActivity {
     ArrayList<String> productNames;
     ArrayList<String> productPrices;
     ArrayList<String> productDescriptions;
+    SqliteHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,29 +26,20 @@ public class CustomerDashboard extends AppCompatActivity {
         setContentView(R.layout.activity_customer_dashboard);
 
         listViewProducts = findViewById(R.id.listViewProducts);
+        dbHelper = new SqliteHelper(this);
 
-        // Sample products
-        productNames = new ArrayList<>();
-        productPrices = new ArrayList<>();
-        productDescriptions = new ArrayList<>();
-
-        productNames.add("Margherita Pizza");
-        productPrices.add("500");
-        productDescriptions.add("Classic cheese and tomato pizza.");
-
-        productNames.add("Pepperoni Pizza");
-        productPrices.add("700");
-        productDescriptions.add("Spicy pepperoni with mozzarella cheese.");
-
-        productNames.add("Veggie Pizza");
-        productPrices.add("600");
-        productDescriptions.add("Fresh vegetables with tomato sauce and cheese.");
+        // Load products from DB
+        loadProductsFromDB();
 
         // Adapter to show product names in list
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_list_item_1,
+                productNames
+        );
         listViewProducts.setAdapter(adapter);
 
-        // On item click, go to ProductDetailActivity
+        // On item click → ProductDetailActivity
         listViewProducts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -57,5 +50,25 @@ public class CustomerDashboard extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void loadProductsFromDB() {
+        productNames = new ArrayList<>();
+        productPrices = new ArrayList<>();
+        productDescriptions = new ArrayList<>();
+
+        Cursor cursor = dbHelper.getAllProducts();
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
+                String price = cursor.getString(cursor.getColumnIndexOrThrow("price"));
+                String desc = cursor.getString(cursor.getColumnIndexOrThrow("description"));
+
+                productNames.add(name);
+                productPrices.add(price);
+                productDescriptions.add(desc);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
     }
 }
