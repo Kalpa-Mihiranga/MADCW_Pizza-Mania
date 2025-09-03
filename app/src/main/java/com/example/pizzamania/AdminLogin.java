@@ -33,7 +33,7 @@ public class AdminLogin extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
 
         // Set up branch options in spinner
-        String[] branches = {"Colombo", "Galle"};
+        String[] branches = {"Select the Branche", "Colombo", "Galle"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, branches);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
