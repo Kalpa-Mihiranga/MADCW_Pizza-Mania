@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,6 +22,11 @@ public class ProductDetailActivity extends AppCompatActivity {
     CheckBox cbCheese, cbOlives, cbSausage;
     RadioGroup rgSize;
     RadioButton rbSmall, rbMedium, rbLarge;
+
+    // Add these for quantity controls
+    Button btnIncrease, btnDecrease;
+    TextView txtQuantity;
+    int quantity = 1;
 
     double smallPrice, mediumPrice, largePrice;
     double basePrice, finalPrice;
@@ -44,6 +50,29 @@ public class ProductDetailActivity extends AppCompatActivity {
         rbSmall = findViewById(R.id.rbSmall);
         rbMedium = findViewById(R.id.rbMedium);
         rbLarge = findViewById(R.id.rbLarge);
+
+        // Initialize quantity controls
+        btnIncrease = findViewById(R.id.btnIncrease);
+        btnDecrease = findViewById(R.id.btnDecrease);
+        txtQuantity = findViewById(R.id.txtQuantity);
+
+        // Set initial quantity
+        txtQuantity.setText(String.valueOf(quantity));
+
+        // Quantity controls logic
+        btnIncrease.setOnClickListener(v -> {
+            quantity++;
+            txtQuantity.setText(String.valueOf(quantity));
+            updatePrice();
+        });
+
+        btnDecrease.setOnClickListener(v -> {
+            if (quantity > 1) {
+                quantity--;
+                txtQuantity.setText(String.valueOf(quantity));
+                updatePrice();
+            }
+        });
 
         // Get product details from intent
         Intent intent = getIntent();
@@ -88,9 +117,34 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         // Add to cart button
         btnAddToCart.setOnClickListener(v -> {
-            // TODO: Add to cart logic here
-            txtProductPrice.setText("Added to cart: Rs. " + finalPrice);
+            // Build pizza description
+            String toppings = "";
+            if (cbCheese.isChecked()) toppings += "Cheese ";
+            if (cbOlives.isChecked()) toppings += "Olives ";
+            if (cbSausage.isChecked()) toppings += "Sausage ";
+
+            String size = "Small";
+            if (rbMedium.isChecked()) size = "Medium";
+            else if (rbLarge.isChecked()) size = "Large";
+
+            String itemName = txtProductName.getText().toString()
+                    + " (" + size + ")";
+            if (!toppings.isEmpty()) itemName += " with " + toppings.trim();
+            if (quantity > 1) itemName += " x" + quantity;
+
+            // Add to cart
+            CartManager.getInstance().addItem(itemName, finalPrice);
+
+            // Optional toast
+            Toast.makeText(ProductDetailActivity.this,
+                    itemName + " added to cart", Toast.LENGTH_SHORT).show();
+
+            // Open CartActivity (use a different variable name)
+            Intent cartIntent = new Intent(ProductDetailActivity.this, CartActivity.class);
+            startActivity(cartIntent);
         });
+
+
 
         // Initial price display
         updatePrice();
@@ -103,6 +157,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         if (cbCheese.isChecked()) finalPrice += 100;
         if (cbOlives.isChecked()) finalPrice += 80;
         if (cbSausage.isChecked()) finalPrice += 150;
+
+        // Multiply by quantity
+        finalPrice = finalPrice * quantity;
 
         txtProductPrice.setText("Rs. " + finalPrice);
     }

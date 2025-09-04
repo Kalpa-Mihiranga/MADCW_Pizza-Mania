@@ -2,15 +2,13 @@ package com.example.pizzamania;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.ArrayList;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class CartActivity extends AppCompatActivity {
 
@@ -18,8 +16,7 @@ public class CartActivity extends AppCompatActivity {
     TextView txtTotalPrice;
     Button btnCheckout;
 
-    ArrayList<String> cartItems;
-    double totalPrice = 0;
+    CartAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,33 +27,59 @@ public class CartActivity extends AppCompatActivity {
         txtTotalPrice = findViewById(R.id.txtTotalPrice);
         btnCheckout = findViewById(R.id.btnCheckout);
 
-        cartItems = new ArrayList<>();
-
-        // Get data from ProductDetailActivity
-        Intent intent = getIntent();
-        String name = intent.getStringExtra("name");
-        String priceStr = intent.getStringExtra("price");
-
-        if (name != null && priceStr != null) {
-            cartItems.add(name + " - Rs. " + priceStr);
-            totalPrice += Double.parseDouble(priceStr);
-        }
-
-        // Display items
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, cartItems);
+        adapter = new CartAdapter(this, CartManager.getInstance().getCartItems());
         listViewCart.setAdapter(adapter);
 
-        txtTotalPrice.setText("Total: Rs. " + totalPrice);
+        updateTotal();
 
-        btnCheckout.setOnClickListener(new View.OnClickListener() {
+        btnCheckout.setOnClickListener(v -> {
+            Intent checkoutIntent = new Intent(CartActivity.this, CheckoutActivity.class);
+            startActivity(checkoutIntent);
+        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.nav_cart);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
+                // Navigate to Dashboard
+                startActivity(new Intent(CartActivity.this, CustomerDashboard.class));
+                finish();
+                return true;
+
+            } else if (id == R.id.nav_cart) {
+                // Stay on Cart
+                return true;
+
+            } else if (id == R.id.nav_orders) {
+                // Navigate to Orders page
+                startActivity(new Intent(CartActivity.this, Orders.class));
+                finish();
+                return true;
+
+            } else if (id == R.id.nav_profile) {
+                // Navigate to Profile page
+                startActivity(new Intent(CartActivity.this, ProfileActivity.class));
+                finish();
+                return true;
+            }
+
+            return false;
+        });
+
+        // Refresh total whenever the list changes
+        adapter.registerDataSetObserver(new android.database.DataSetObserver() {
             @Override
-            public void onClick(View v) {
-                // Go to CheckoutActivity
-                Intent checkoutIntent = new Intent(CartActivity.this, CheckoutActivity.class);
-                checkoutIntent.putStringArrayListExtra("cartItems", cartItems);
-                checkoutIntent.putExtra("totalPrice", totalPrice);
-                startActivity(checkoutIntent);
+            public void onChanged() {
+                super.onChanged();
+                updateTotal();
             }
         });
+    }
+
+    private void updateTotal() {
+        txtTotalPrice.setText("Total: Rs. " + CartManager.getInstance().getTotalPrice());
     }
 }

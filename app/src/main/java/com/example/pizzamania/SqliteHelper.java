@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SqliteHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "PizzaMania";
-    private static final int DB_VERSION = 3;
+    private static final int DB_VERSION = 4; // updated for phone column
 
     public SqliteHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -23,7 +23,8 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 "customer_name TEXT, " +
                 "email TEXT UNIQUE, " +
                 "password TEXT, " +
-                "address TEXT)";
+                "address TEXT, " +
+                "phone TEXT)"; // added phone
         db.execSQL(customerTable);
 
         // ---------------- Admin ----------------
@@ -76,6 +77,36 @@ public class SqliteHelper extends SQLiteOpenHelper {
         return exists;
     }
 
+    public Cursor getCustomerByEmail(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM customer WHERE email=?", new String[]{email});
+    }
+
+    public long insertCustomer(String name, String email, String password, String address, String phone) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("customer_name", name);
+        values.put("email", email);
+        values.put("password", password);
+        values.put("address", address);
+        values.put("phone", phone);
+        long result = db.insert("customer", null, values);
+        db.close();
+        return result;
+    }
+
+    public int updateCustomer(int customerId, String name, String email, String address, String phone) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("customer_name", name);
+        values.put("email", email);
+        values.put("address", address);
+        values.put("phone", phone);
+        int rows = db.update("customer", values, "customer_ID=?", new String[]{String.valueOf(customerId)});
+        db.close();
+        return rows;
+    }
+
     // ---------------- Admin ----------------
     public boolean checkAdmin(String username, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -89,7 +120,6 @@ public class SqliteHelper extends SQLiteOpenHelper {
     }
 
     // ---------------- Products ----------------
-    // Add product
     public long insertProduct(String name, String description, double smallPrice,double mediumPrice,double largePrice, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -104,20 +134,16 @@ public class SqliteHelper extends SQLiteOpenHelper {
         return result;
     }
 
-
-    // Get all products
     public Cursor getAllProducts() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM product", null);
     }
 
-    // Get single product by ID
     public Cursor getProductById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM product WHERE product_ID=?", new String[]{String.valueOf(id)});
     }
 
-    // Update product (support all sizes)
     public int updateProduct(int id, String name, String description,
                              double smallPrice, double mediumPrice, double largePrice, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -133,7 +159,6 @@ public class SqliteHelper extends SQLiteOpenHelper {
         return rows;
     }
 
-    // Delete product
     public int deleteProduct(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         int rows = db.delete("product", "product_ID=?", new String[]{String.valueOf(id)});

@@ -3,10 +3,16 @@ package com.example.pizzamania;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.MenuItem;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
@@ -18,6 +24,12 @@ public class CustomerDashboard extends AppCompatActivity {
     ArrayList<Double> smallPrices, mediumPrices, largePrices;
     SqliteHelper dbHelper;
 
+    // For search filtering
+    ArrayList<String> allProductNames, allProductDescriptions;
+    ArrayList<byte[]> allProductImages;
+    ArrayList<Double> allSmallPrices, allMediumPrices, allLargePrices;
+    ProductAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,9 +40,18 @@ public class CustomerDashboard extends AppCompatActivity {
 
         dbHelper = new SqliteHelper(this);
 
+        // Load all products for filtering
         loadProductsFromDB();
 
-        ProductAdapter adapter = new ProductAdapter(
+        // Copy all data for search reference
+        allProductNames = new ArrayList<>(productNames);
+        allProductDescriptions = new ArrayList<>(productDescriptions);
+        allProductImages = new ArrayList<>(productImages);
+        allSmallPrices = new ArrayList<>(smallPrices);
+        allMediumPrices = new ArrayList<>(mediumPrices);
+        allLargePrices = new ArrayList<>(largePrices);
+
+        adapter = new ProductAdapter(
                 this,
                 productNames,
                 productDescriptions,
@@ -51,6 +72,49 @@ public class CustomerDashboard extends AppCompatActivity {
             intent.putExtra("largePrice", largePrices.get(position));
             intent.putExtra("image", productImages.get(position));
             startActivity(intent);
+        });
+
+        // Search bar logic
+        EditText searchBar = findViewById(R.id.searchBar);
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterProducts(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+
+        // Bottom navigation bar logic
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.nav_home) {
+                    // Already in home (dashboard)
+                    return true;
+                } else if (itemId == R.id.nav_cart) {
+                    Intent cartIntent = new Intent(CustomerDashboard.this, CartActivity.class);
+                    startActivity(cartIntent);
+                    return true;
+                } else if (itemId == R.id.nav_orders) {
+                    Intent ordersIntent = new Intent(CustomerDashboard.this, OrdersActivity.class);
+                    startActivity(ordersIntent);
+                    return true;
+                } else if (itemId == R.id.nav_profile) {
+                    Intent profileIntent = new Intent(CustomerDashboard.this, ProfileActivity.class);
+                    startActivity(profileIntent);
+                    return true;
+                }
+
+                return false;
+            }
         });
     }
 
@@ -74,5 +138,37 @@ public class CustomerDashboard extends AppCompatActivity {
             } while (cursor.moveToNext());
             cursor.close();
         }
+    }
+
+    private void filterProducts(String query) {
+        productNames.clear();
+        productDescriptions.clear();
+        productImages.clear();
+        smallPrices.clear();
+        mediumPrices.clear();
+        largePrices.clear();
+
+        if (query.isEmpty()) {
+            productNames.addAll(allProductNames);
+            productDescriptions.addAll(allProductDescriptions);
+            productImages.addAll(allProductImages);
+            smallPrices.addAll(allSmallPrices);
+            mediumPrices.addAll(allMediumPrices);
+            largePrices.addAll(allLargePrices);
+        } else {
+            String lowerQuery = query.toLowerCase();
+            for (int i = 0; i < allProductNames.size(); i++) {
+                if (allProductNames.get(i).toLowerCase().contains(lowerQuery) ||
+                        allProductDescriptions.get(i).toLowerCase().contains(lowerQuery)) {
+                    productNames.add(allProductNames.get(i));
+                    productDescriptions.add(allProductDescriptions.get(i));
+                    productImages.add(allProductImages.get(i));
+                    smallPrices.add(allSmallPrices.get(i));
+                    mediumPrices.add(allMediumPrices.get(i));
+                    largePrices.add(allLargePrices.get(i));
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
     }
 }
