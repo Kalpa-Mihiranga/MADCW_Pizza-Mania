@@ -11,6 +11,8 @@ import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -27,6 +29,7 @@ public class ProductAddActivity extends AppCompatActivity {
     ImageView preview;
     Bitmap selectedBitmap;
     SqliteHelper db;
+    Spinner branchSpinner;
 
     // Request permission launcher
     private final ActivityResultLauncher<String> permissionLauncher =
@@ -56,8 +59,16 @@ public class ProductAddActivity extends AppCompatActivity {
         btnAdd = findViewById(R.id.btnAdd);
         btnViewProducts = findViewById(R.id.btnViewProducts);
         preview = findViewById(R.id.productImage);
+        branchSpinner = findViewById(R.id.branchSpinner);
 
         db = new SqliteHelper(this);
+
+        // Setup branch spinner
+        ArrayAdapter<String> branchAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"Colombo", "Galle"});
+        branchAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        branchSpinner.setAdapter(branchAdapter);
 
         // Choose image
         btnChooseImage.setOnClickListener(v -> checkPermissionAndPick());
@@ -108,6 +119,7 @@ public class ProductAddActivity extends AppCompatActivity {
         String smallStr = editSmallPrice.getText().toString().trim();
         String mediumStr = editMediumPrice.getText().toString().trim();
         String largeStr = editLargePrice.getText().toString().trim();
+        String branch = branchSpinner.getSelectedItem().toString();
 
         if (name.isEmpty() || smallStr.isEmpty() || mediumStr.isEmpty() || largeStr.isEmpty() || selectedBitmap == null) {
             Toast.makeText(this, "Fill all fields and choose image", Toast.LENGTH_SHORT).show();
@@ -126,7 +138,7 @@ public class ProductAddActivity extends AppCompatActivity {
 
         byte[] imgBytes = bitmapToBytes(selectedBitmap);
 
-        long inserted = db.insertProduct(name, desc, smallPrice, mediumPrice, largePrice, imgBytes);
+        long inserted = db.insertProduct(name, desc, smallPrice, mediumPrice, largePrice, imgBytes, branch);
 
         if (inserted != -1) {
             Toast.makeText(this, "Product added successfully!", Toast.LENGTH_SHORT).show();
@@ -150,5 +162,6 @@ public class ProductAddActivity extends AppCompatActivity {
         editLargePrice.setText("");
         preview.setImageBitmap(null);
         selectedBitmap = null;
+        branchSpinner.setSelection(0);
     }
 }

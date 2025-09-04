@@ -7,6 +7,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -23,6 +26,7 @@ public class CustomerDashboard extends AppCompatActivity {
     ArrayList<byte[]> productImages;
     ArrayList<Double> smallPrices, mediumPrices, largePrices;
     SqliteHelper dbHelper;
+    Spinner branchSpinner; // add spinner reference
 
     // For search filtering
     ArrayList<String> allProductNames, allProductDescriptions;
@@ -40,16 +44,29 @@ public class CustomerDashboard extends AppCompatActivity {
 
         dbHelper = new SqliteHelper(this);
 
-        // Load all products for filtering
-        loadProductsFromDB();
+        branchSpinner = findViewById(R.id.customerBranchSpinner); // initialize spinner
 
-        // Copy all data for search reference
-        allProductNames = new ArrayList<>(productNames);
-        allProductDescriptions = new ArrayList<>(productDescriptions);
-        allProductImages = new ArrayList<>(productImages);
-        allSmallPrices = new ArrayList<>(smallPrices);
-        allMediumPrices = new ArrayList<>(mediumPrices);
-        allLargePrices = new ArrayList<>(largePrices);
+        // Setup branch spinner
+        ArrayAdapter<String> branchAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item,
+                new String[]{"Colombo", "Galle"});
+        branchAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        branchSpinner.setAdapter(branchAdapter);
+
+        // Load products for the initially selected branch
+        loadProductsByBranch(branchSpinner.getSelectedItem().toString());
+
+        branchSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
+                String branch = branchSpinner.getSelectedItem().toString();
+                loadProductsByBranch(branch);
+                // Also update search reference
+                copyAllProductsForSearch();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         adapter = new ProductAdapter(
                 this,
@@ -60,7 +77,6 @@ public class CustomerDashboard extends AppCompatActivity {
                 mediumPrices,
                 largePrices
         );
-
         recyclerView.setAdapter(adapter);
 
         adapter.setOnItemClickListener(position -> {
@@ -74,7 +90,6 @@ public class CustomerDashboard extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Search bar logic
         EditText searchBar = findViewById(R.id.searchBar);
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -118,7 +133,8 @@ public class CustomerDashboard extends AppCompatActivity {
         });
     }
 
-    private void loadProductsFromDB() {
+    // Load products for selected branch
+    private void loadProductsByBranch(String branch) {
         productNames = new ArrayList<>();
         productDescriptions = new ArrayList<>();
         productImages = new ArrayList<>();
@@ -126,7 +142,7 @@ public class CustomerDashboard extends AppCompatActivity {
         mediumPrices = new ArrayList<>();
         largePrices = new ArrayList<>();
 
-        Cursor cursor = dbHelper.getAllProducts();
+        Cursor cursor = dbHelper.getProductsByBranch(branch);
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 productNames.add(cursor.getString(cursor.getColumnIndexOrThrow("name")));
@@ -138,6 +154,26 @@ public class CustomerDashboard extends AppCompatActivity {
             } while (cursor.moveToNext());
             cursor.close();
         }
+
+        if (adapter != null) {
+            adapter.setProductNames(productNames);
+            adapter.setProductDescriptions(productDescriptions);
+            adapter.setProductImages(productImages);
+            adapter.setSmallPrices(smallPrices);
+            adapter.setMediumPrices(mediumPrices);
+            adapter.setLargePrices(largePrices);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    // Copy all products for search reference (for current branch)
+    private void copyAllProductsForSearch() {
+        allProductNames = new ArrayList<>(productNames);
+        allProductDescriptions = new ArrayList<>(productDescriptions);
+        allProductImages = new ArrayList<>(productImages);
+        allSmallPrices = new ArrayList<>(smallPrices);
+        allMediumPrices = new ArrayList<>(mediumPrices);
+        allLargePrices = new ArrayList<>(largePrices);
     }
 
     private void filterProducts(String query) {

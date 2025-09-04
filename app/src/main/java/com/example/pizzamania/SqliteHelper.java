@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class SqliteHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "PizzaMania";
-    private static final int DB_VERSION = 4; // updated for phone column
+    private static final int DB_VERSION = 5; // increment for branch column
 
     public SqliteHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -42,7 +42,8 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 "smallPrice REAL, " +
                 "mediumPrice REAL," +
                 "largePrice REAL," +
-                "image BLOB)";
+                "image BLOB," +
+                "branch TEXT)"; // added branch
         db.execSQL(productTable);
 
         // ---------------- Cart ----------------
@@ -120,7 +121,7 @@ public class SqliteHelper extends SQLiteOpenHelper {
     }
 
     // ---------------- Products ----------------
-    public long insertProduct(String name, String description, double smallPrice,double mediumPrice,double largePrice, byte[] image) {
+    public long insertProduct(String name, String description, double smallPrice, double mediumPrice, double largePrice, byte[] image, String branch) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
@@ -129,9 +130,20 @@ public class SqliteHelper extends SQLiteOpenHelper {
         values.put("mediumPrice", mediumPrice);
         values.put("largePrice", largePrice);
         values.put("image", image);
+        values.put("branch", branch); // new
         long result = db.insert("product", null, values);
         db.close();
         return result;
+    }
+
+    @Deprecated
+    public long insertProduct(String name, String description, double smallPrice, double mediumPrice, double largePrice, byte[] image) {
+        return insertProduct(name, description, smallPrice, mediumPrice, largePrice, image, "Colombo");
+    }
+
+    public Cursor getProductsByBranch(String branch) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM product WHERE branch=?", new String[]{branch});
     }
 
     public Cursor getAllProducts() {

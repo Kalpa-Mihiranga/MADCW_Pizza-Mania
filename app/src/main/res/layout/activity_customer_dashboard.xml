@@ -28,6 +28,14 @@
         android:layout_margin="12dp"
         android:elevation="2dp"/>
 
+    <!-- Spinner for Branch Selection -->
+    <Spinner
+        android:id="@+id/customerBranchSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:prompt="@string/select_branch" />
+
     <!-- RecyclerView (Product List) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewProducts"
