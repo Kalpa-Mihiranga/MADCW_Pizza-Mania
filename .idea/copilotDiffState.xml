@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/app/src/main/res/layout/activity_product_list.xml">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/app/src/main/res/layout/activity_product_list.xml" />
+              <option name="originalContent" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&#10;&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;&#10;    android:orientation=&quot;vertical&quot;&#10;    android:padding=&quot;16dp&quot;&#10;    android:layout_width=&quot;match_parent&quot;&#10;    android:layout_height=&quot;match_parent&quot;&gt;&#10;&#10;    &lt;TextView&#10;        android:text=&quot;Product List&quot;&#10;        android:textSize=&quot;20sp&quot;&#10;        android:textStyle=&quot;bold&quot;&#10;        android:layout_width=&quot;match_parent&quot;&#10;        android:layout_height=&quot;wrap_content&quot;&#10;        android:paddingBottom=&quot;10dp&quot;/&gt;&#10;&#10;    &lt;ListView&#10;        android:id=&quot;@+id/listViewProducts&quot;&#10;        android:layout_width=&quot;match_parent&quot;&#10;        android:layout_height=&quot;match_parent&quot;&#10;        android:dividerHeight=&quot;1dp&quot;/&gt;&#10;&lt;/LinearLayout&gt;&#10;" />
+              <option name="updatedContent" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&#10;&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;&#10;    android:orientation=&quot;vertical&quot;&#10;    android:padding=&quot;16dp&quot;&#10;    android:layout_width=&quot;match_parent&quot;&#10;    android:layout_height=&quot;match_parent&quot;&gt;&#10;&#10;    &lt;TextView&#10;        android:text=&quot;Product List&quot;&#10;        android:textSize=&quot;20sp&quot;&#10;        android:textStyle=&quot;bold&quot;&#10;        android:layout_width=&quot;match_parent&quot;&#10;        android:layout_height=&quot;wrap_content&quot;&#10;        android:paddingBottom=&quot;10dp&quot;/&gt;&#10;&#10;    &lt;Spinner&#10;        android:id=&quot;@+id/branchSpinner&quot;&#10;        android:layout_width=&quot;match_parent&quot;&#10;        android:layout_height=&quot;wrap_content&quot;&#10;        android:layout_marginBottom=&quot;12dp&quot;/&gt;&#10;&#10;    &lt;ListView&#10;        android:id=&quot;@+id/listViewProducts&quot;&#10;        android:layout_width=&quot;match_parent&quot;&#10;        android:layout_height=&quot;0dp&quot;&#10;        android:layout_weight=&quot;1&quot;&#10;        android:dividerHeight=&quot;1dp&quot;/&gt;&#10;&lt;/LinearLayout&gt;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
