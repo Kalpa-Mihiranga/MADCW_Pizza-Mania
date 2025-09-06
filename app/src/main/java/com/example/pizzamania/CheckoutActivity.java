@@ -4,8 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,67 +14,64 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CheckoutActivity extends AppCompatActivity {
 
-    EditText editCustomerName, editCustomerPhone, editCustomerAddress;
-    TextView txtTotalPrice;
+    TextView txtCustomerName, txtCustomerPhone, txtCustomerAddress, txtTotalPrice;
     ListView listViewCheckout;
-    Button btnPlaceOrder;
+    Button btnPlaceOrder, btnCancel;
 
     CartAdapter adapter;
     SqliteHelper dbHelper;
-    int customerId = 1; // 👉 Replace with logged-in customer id from login session
-    String sessionEmail; // store logged-in email
+    String sessionEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout);
 
-        editCustomerName = findViewById(R.id.editCustomerName);
-        editCustomerPhone = findViewById(R.id.editCustomerPhone);
-        editCustomerAddress = findViewById(R.id.editCustomerAddress);
+        // Bind Views
+        txtCustomerName = findViewById(R.id.txtCustomerName);
+        txtCustomerPhone = findViewById(R.id.txtCustomerPhone);
+        txtCustomerAddress = findViewById(R.id.txtCustomerAddress);
         txtTotalPrice = findViewById(R.id.txtTotalPrice);
         listViewCheckout = findViewById(R.id.listViewCheckout);
         btnPlaceOrder = findViewById(R.id.btnPlaceOrder);
+        btnCancel = findViewById(R.id.btnCancel);
 
         dbHelper = new SqliteHelper(this);
 
-        // Get logged-in email from SharedPreferences
+        // Get logged-in email from session
         SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
         sessionEmail = sharedPreferences.getString("email", null);
 
-        // Load customer info into EditTexts using session email
+        // Load customer info (read-only)
         loadCustomerInfo(sessionEmail);
 
-        // Show cart items
-        adapter = new CartAdapter(this, CartManager.getInstance().getCartItems());
+        // Show cart items (read-only, no quantity change)
+        adapter = new CartAdapter(this, CartManager.getInstance().getCartItems()) {
+            @Override
+            public View getView(int position, View convertView, android.view.ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                // Hide increase/decrease/remove buttons in checkout
+                View btnIncrease = view.findViewById(R.id.btnIncrease);
+                View btnDecrease = view.findViewById(R.id.btnDecrease);
+                View btnRemove = view.findViewById(R.id.btnRemove);
+                if (btnIncrease != null) btnIncrease.setVisibility(View.GONE);
+                if (btnDecrease != null) btnDecrease.setVisibility(View.GONE);
+                if (btnRemove != null) btnRemove.setVisibility(View.GONE);
+                return view;
+            }
+        };
         listViewCheckout.setAdapter(adapter);
 
         // Show total price
         txtTotalPrice.setText("Total: Rs. " + CartManager.getInstance().getTotalPrice());
 
-        // Place Order Button
+        // Place Order
         btnPlaceOrder.setOnClickListener(v -> {
-            String name = editCustomerName.getText().toString().trim();
-            String phone = editCustomerPhone.getText().toString().trim();
-            String address = editCustomerAddress.getText().toString().trim();
-
-            if (name.isEmpty() || phone.isEmpty() || address.isEmpty()) {
-                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // ✅ Update customer info before placing order
-            int rows = dbHelper.updateCustomer(customerId, name, "test@gmail.com", address, phone);
-            if (rows > 0) {
-                Toast.makeText(this, "Customer info updated", Toast.LENGTH_SHORT).show();
-            }
-
             if (CartManager.getInstance().getCartItems().isEmpty()) {
                 Toast.makeText(this, "Cart is empty!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // 👉 Save order to database (if you create orders table)
             Toast.makeText(this, "✅ Order placed successfully!", Toast.LENGTH_LONG).show();
 
             // Clear cart
@@ -83,12 +80,17 @@ public class CheckoutActivity extends AppCompatActivity {
 
             // Go to payment gateway
             Intent intent = new Intent(CheckoutActivity.this, PaymentGatewayActivity.class);
-            intent.putExtra("customerName", name);
-            intent.putExtra("customerPhone", phone);
-            intent.putExtra("customerAddress", address);
+            intent.putExtra("customerName", txtCustomerName.getText().toString());
+            intent.putExtra("customerPhone", txtCustomerPhone.getText().toString());
+            intent.putExtra("customerAddress", txtCustomerAddress.getText().toString());
             intent.putExtra("totalPrice", CartManager.getInstance().getTotalPrice());
             startActivity(intent);
             finish();
+        });
+
+        // Cancel button
+        btnCancel.setOnClickListener(v -> {
+            finish(); // just close checkout
         });
     }
 
@@ -99,12 +101,9 @@ public class CheckoutActivity extends AppCompatActivity {
             String phone = cursor.getString(cursor.getColumnIndexOrThrow("phone"));
             String address = cursor.getString(cursor.getColumnIndexOrThrow("address"));
 
-            editCustomerName.setText(name);
-            editCustomerPhone.setText(phone);
-            editCustomerAddress.setText(address);
-
-            // Save customerId for update
-            customerId = cursor.getInt(cursor.getColumnIndexOrThrow("customer_ID"));
+            txtCustomerName.setText("Name: " + name);
+            txtCustomerPhone.setText("Phone: " + phone);
+            txtCustomerAddress.setText("Address: " + address);
 
             cursor.close();
         }
