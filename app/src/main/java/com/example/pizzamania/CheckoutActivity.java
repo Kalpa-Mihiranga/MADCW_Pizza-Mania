@@ -1,22 +1,63 @@
 package com.example.pizzamania;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.Serializable;
+
+import lk.payhere.androidsdk.PHConfigs;
+import lk.payhere.androidsdk.PHConstants;
+import lk.payhere.androidsdk.PHMainActivity;
+import lk.payhere.androidsdk.PHResponse;
+import lk.payhere.androidsdk.model.InitRequest;
+import lk.payhere.androidsdk.model.Item;
+import lk.payhere.androidsdk.model.StatusResponse;
+
 public class CheckoutActivity extends AppCompatActivity {
+
+    private static final String TAG = "PayHere Demo";
+
+    private TextView textView;
+
+
+    private final ActivityResultLauncher<Intent> peyherelauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult() ,
+            result ->{
+                if(result.getResultCode() == Activity.RESULT_OK && result.getData() != null){
+                    Intent  data = result.getData();
+                    if (data.hasExtra(PHConstants.INTENT_EXTRA_RESULT)) {
+                        Serializable serializable = data.getSerializableExtra(PHConstants.INTENT_EXTRA_RESULT);
+                        if (serializable instanceof PHResponse) {
+                            PHResponse<StatusResponse> response = (PHResponse<StatusResponse>) serializable;
+                            String msg = response.isSuccess() ? "Payment Success: " + response.getData() : "Payment Failed" +response;
+                            Log.d(TAG, msg);
+                            textView.setText(msg);
+                        }
+                    }
+                }
+                else if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                    textView.setText("User Cancelled the payment");
+                }
+            }
+    );
 
     TextView txtCustomerName, txtCustomerPhone, txtCustomerAddress, txtTotalPrice;
     ListView listViewCheckout;
     Button btnPlaceOrder, btnCancel;
+
 
     CartAdapter adapter;
     SqliteHelper dbHelper;
@@ -92,7 +133,47 @@ public class CheckoutActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(v -> {
             finish(); // just close checkout
         });
+        Button pay_button = findViewById(R.id.btnPlaceOrder);
+        //textView = findViewById(R.id.textView);
+
+        pay_button.setOnClickListener(view -> initiatepayment());
     }
+
+        private void initiatepayment() {
+
+            InitRequest req = new InitRequest();
+            req.setMerchantId("1231912");       // Merchant ID
+            req.setCurrency("LKR");             // Currency code LKR/USD/GBP/EUR/AUD
+            req.setAmount(1000.00);             // Final Amount to be charged
+            req.setOrderId("230000123");        // Unique Reference ID
+            req.setItemsDescription("Door bell wireless");  // Item description title
+            req.setCustom1("This is the custom message 1");
+            req.setCustom2("This is the custom message 2");
+            req.getCustomer().setFirstName("Saman");
+            req.getCustomer().setLastName("Perera");
+            req.getCustomer().setEmail("kalpamihiranga957@gmail.com");
+            req.getCustomer().setPhone("+94740662500");
+            req.getCustomer().getAddress().setAddress("No.1, Galle Road");
+            req.getCustomer().getAddress().setCity("Colombo");
+            req.getCustomer().getAddress().setCountry("Sri Lanka");
+
+//Optional Params
+            // Notifiy Url
+            req.getCustomer().getDeliveryAddress().setAddress("No.2, Kandy Road");
+            req.getCustomer().getDeliveryAddress().setCity("Kadawatha");
+            req.getCustomer().getDeliveryAddress().setCountry("Sri Lanka");
+            req.getItems().add(new Item(null, "Door bell wireless", 1, 1000.0));
+
+            req.setNotifyUrl(" ");
+
+            Intent intent = new Intent(this, PHMainActivity.class);
+            intent.putExtra(PHConstants.INTENT_EXTRA_DATA, req);
+            PHConfigs.setBaseUrl(PHConfigs.SANDBOX_URL);
+            // startActivityForResult(intent, PAYHERE_REQUEST); //unique request ID e.g. "11001"
+            peyherelauncher.launch(intent);
+
+        }
+
 
     private void loadCustomerInfo(String email) {
         Cursor cursor = dbHelper.getCustomerByEmail(email);
