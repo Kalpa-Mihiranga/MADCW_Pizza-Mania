@@ -32,6 +32,15 @@ public class CartActivity extends AppCompatActivity {
 
         updateTotal();
 
+        // Listen for changes to update total price
+        adapter.registerDataSetObserver(new android.database.DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                updateTotal();
+            }
+        });
+
         btnCheckout.setOnClickListener(v -> {
             Intent checkoutIntent = new Intent(CartActivity.this, CheckoutActivity.class);
             startActivity(checkoutIntent);
@@ -67,15 +76,6 @@ public class CartActivity extends AppCompatActivity {
             }
 
             return false;
-        });
-
-        // Refresh total whenever the list changes
-        adapter.registerDataSetObserver(new android.database.DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                updateTotal();
-            }
         });
     }
 

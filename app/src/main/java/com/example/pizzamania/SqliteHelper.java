@@ -5,11 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class SqliteHelper extends SQLiteOpenHelper {
 
-    private static final String DB_NAME = "PizzaMania";
-    private static final int DB_VERSION = 4; // updated for phone column
+    private static final String DB_NAME = "PizzaMania.db";
+    private static final int DB_VERSION = 6; // bump version to reset schema if needed
 
     public SqliteHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -24,7 +25,7 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 "email TEXT UNIQUE, " +
                 "password TEXT, " +
                 "address TEXT, " +
-                "phone TEXT)"; // added phone
+                "phone TEXT)";
         db.execSQL(customerTable);
 
         // ---------------- Admin ----------------
@@ -40,9 +41,10 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 "name TEXT, " +
                 "description TEXT, " +
                 "smallPrice REAL, " +
-                "mediumPrice REAL," +
-                "largePrice REAL," +
-                "image BLOB)";
+                "mediumPrice REAL, " +
+                "largePrice REAL, " +
+                "image BLOB, " +
+                "branch TEXT)";
         db.execSQL(productTable);
 
         // ---------------- Cart ----------------
@@ -73,7 +75,6 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 new String[]{email, password});
         boolean exists = cursor.moveToFirst();
         cursor.close();
-        db.close();
         return exists;
     }
 
@@ -91,7 +92,10 @@ public class SqliteHelper extends SQLiteOpenHelper {
         values.put("address", address);
         values.put("phone", phone);
         long result = db.insert("customer", null, values);
-        db.close();
+
+        if (result == -1) {
+            Log.e("DB_ERROR", "❌ Failed to insert customer: " + email);
+        }
         return result;
     }
 
@@ -102,9 +106,7 @@ public class SqliteHelper extends SQLiteOpenHelper {
         values.put("email", email);
         values.put("address", address);
         values.put("phone", phone);
-        int rows = db.update("customer", values, "customer_ID=?", new String[]{String.valueOf(customerId)});
-        db.close();
-        return rows;
+        return db.update("customer", values, "customer_ID=?", new String[]{String.valueOf(customerId)});
     }
 
     // ---------------- Admin ----------------
@@ -115,12 +117,12 @@ public class SqliteHelper extends SQLiteOpenHelper {
                 new String[]{username, password});
         boolean exists = cursor.moveToFirst();
         cursor.close();
-        db.close();
         return exists;
     }
 
     // ---------------- Products ----------------
-    public long insertProduct(String name, String description, double smallPrice,double mediumPrice,double largePrice, byte[] image) {
+    public long insertProduct(String name, String description, double smallPrice, double mediumPrice,
+                              double largePrice, byte[] image, String branch) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
@@ -129,9 +131,26 @@ public class SqliteHelper extends SQLiteOpenHelper {
         values.put("mediumPrice", mediumPrice);
         values.put("largePrice", largePrice);
         values.put("image", image);
+        values.put("branch", branch);
+
         long result = db.insert("product", null, values);
-        db.close();
+        if (result == -1) {
+            Log.e("DB_ERROR", "❌ Failed to insert product: " + name);
+        } else {
+            Log.d("DB_SUCCESS", "✅ Inserted product [" + name + "] ID: " + result);
+        }
         return result;
+    }
+
+    @Deprecated
+    public long insertProduct(String name, String description, double smallPrice, double mediumPrice,
+                              double largePrice, byte[] image) {
+        return insertProduct(name, description, smallPrice, mediumPrice, largePrice, image, "Colombo");
+    }
+
+    public Cursor getProductsByBranch(String branch) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM product WHERE branch=?", new String[]{branch});
     }
 
     public Cursor getAllProducts() {
@@ -145,7 +164,8 @@ public class SqliteHelper extends SQLiteOpenHelper {
     }
 
     public int updateProduct(int id, String name, String description,
-                             double smallPrice, double mediumPrice, double largePrice, byte[] image) {
+                             double smallPrice, double mediumPrice, double largePrice,
+                             byte[] image, String branch) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
@@ -154,16 +174,13 @@ public class SqliteHelper extends SQLiteOpenHelper {
         values.put("mediumPrice", mediumPrice);
         values.put("largePrice", largePrice);
         values.put("image", image);
-        int rows = db.update("product", values, "product_ID=?", new String[]{String.valueOf(id)});
-        db.close();
-        return rows;
+        values.put("branch", branch);
+        return db.update("product", values, "product_ID=?", new String[]{String.valueOf(id)});
     }
 
     public int deleteProduct(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        int rows = db.delete("product", "product_ID=?", new String[]{String.valueOf(id)});
-        db.close();
-        return rows;
+        return db.delete("product", "product_ID=?", new String[]{String.valueOf(id)});
     }
 
     // ---------------- Cart ----------------
@@ -173,24 +190,28 @@ public class SqliteHelper extends SQLiteOpenHelper {
         values.put("customer_ID", customerId);
         values.put("product_ID", productId);
         values.put("quantity", quantity);
-        long result = db.insert("cart", null, values);
-        db.close();
-        return result;
+        return db.insert("cart", null, values);
     }
 
     public Cursor getCartItems(int customerId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery(
-                "SELECT c.cart_ID, p.name, p.price, c.quantity, p.image " +
+                "SELECT c.cart_ID, p.name, p.smallPrice, c.quantity, p.image " +
                         "FROM cart c JOIN product p ON c.product_ID = p.product_ID " +
                         "WHERE c.customer_ID = ?",
                 new String[]{String.valueOf(customerId)}
         );
     }
 
+    public int updateCartItemQuantity(int cartId, int quantity) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("quantity", quantity);
+        return db.update("cart", values, "cart_ID=?", new String[]{String.valueOf(cartId)});
+    }
+
     public void clearCart(int customerId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete("cart", "customer_ID=?", new String[]{String.valueOf(customerId)});
-        db.close();
     }
 }

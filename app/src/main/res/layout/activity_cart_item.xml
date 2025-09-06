@@ -5,6 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <!-- Product Image -->
+    <ImageView
+        android:id="@+id/imgItemImage"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="12dp"
+        android:scaleType="centerCrop"
+        android:background="#EEEEEE"/>
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_weight="1"
@@ -22,6 +31,36 @@
             android:textSize="14sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+
+        <!-- Quantity controls -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/btnDecrease"
+                android:text="-"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/txtQuantity"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:text="1"/>
+
+            <Button
+                android:id="@+id/btnIncrease"
+                android:text="+"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:textSize="18sp"/>
+        </LinearLayout>
     </LinearLayout>
 
     <Button

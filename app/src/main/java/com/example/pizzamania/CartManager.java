@@ -13,8 +13,8 @@ public class CartManager {
         return instance;
     }
 
-    public void addItem(String name, double price) {
-        cartItems.add(new CartItem(name, price));
+    public void addItem(String name, double price, int quantity, byte[] image) {
+        cartItems.add(new CartItem(name, price, quantity, image));
     }
 
     public void removeItem(int position) {
@@ -25,7 +25,7 @@ public class CartManager {
 
     public double getTotalPrice() {
         double total = 0;
-        for (CartItem item : cartItems) total += item.getPrice();
+        for (CartItem item : cartItems) total += item.getPrice() * item.getQuantity();
         return total;
     }
 

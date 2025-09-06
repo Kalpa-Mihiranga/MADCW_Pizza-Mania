@@ -133,7 +133,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (quantity > 1) itemName += " x" + quantity;
 
             // Add to cart
-            CartManager.getInstance().addItem(itemName, finalPrice);
+            CartManager.getInstance().addItem(itemName, finalPrice, quantity, imageBytes);
 
             // Optional toast
             Toast.makeText(ProductDetailActivity.this,

@@ -61,7 +61,13 @@
             android:scaleType="centerCrop"
             android:background="#eeeeee"/>
 
-
+        <!-- Spinner for branch selection -->
+        <Spinner
+            android:id="@+id/branchSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:prompt="@string/select_branch" />
 
         <Button
             android:id="@+id/btnAdd"

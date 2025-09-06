@@ -16,7 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class UserRegister extends AppCompatActivity {
 
-    private EditText etName, etEmail, etAddress, etPassword, etConfirmPassword;
+    private EditText etName, etEmail, etAddress, etPassword, etConfirmPassword, etPhone;
     private Button btnRegister;
     private SqliteHelper sqliteHelper;
 
@@ -41,6 +41,7 @@ public class UserRegister extends AppCompatActivity {
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
         etAddress = findViewById(R.id.etAddress);
+        etPhone = findViewById(R.id.etPhone); // <-- add this line
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         btnRegister = findViewById(R.id.btnRegister);
@@ -53,6 +54,7 @@ public class UserRegister extends AppCompatActivity {
         String name = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String address = etAddress.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim(); // <-- get phone
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
@@ -67,6 +69,10 @@ public class UserRegister extends AppCompatActivity {
         }
         if (TextUtils.isEmpty(address)) {
             etAddress.setError("Enter your address");
+            return;
+        }
+        if (TextUtils.isEmpty(phone)) {
+            etPhone.setError("Enter your phone number");
             return;
         }
         if (TextUtils.isEmpty(password)) {
@@ -85,6 +91,7 @@ public class UserRegister extends AppCompatActivity {
         values.put("email", email);
         values.put("password", password);
         values.put("address", address);
+        values.put("phone", phone); // <-- save phone
 
         long result = db.insert("customer", null, values);
         if (result != -1) {

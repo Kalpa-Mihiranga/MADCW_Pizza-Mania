@@ -41,6 +41,25 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         this.largePrices = largePrices;
     }
 
+    public void setProductNames(ArrayList<String> productNames) {
+        this.productNames = productNames;
+    }
+    public void setProductDescriptions(ArrayList<String> productDescriptions) {
+        this.productDescriptions = productDescriptions;
+    }
+    public void setProductImages(ArrayList<byte[]> productImages) {
+        this.productImages = productImages;
+    }
+    public void setSmallPrices(ArrayList<Double> smallPrices) {
+        this.smallPrices = smallPrices;
+    }
+    public void setMediumPrices(ArrayList<Double> mediumPrices) {
+        this.mediumPrices = mediumPrices;
+    }
+    public void setLargePrices(ArrayList<Double> largePrices) {
+        this.largePrices = largePrices;
+    }
+
     @NonNull
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -85,4 +104,3 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         }
     }
 }
-

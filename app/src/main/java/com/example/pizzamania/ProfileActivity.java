@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 public class ProfileActivity extends AppCompatActivity {
 
     TextView txtName, txtEmail, txtAddress, txtPhone;
@@ -43,6 +45,30 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         btnLogout.setOnClickListener(v -> showLogoutDialog(sharedPreferences));
+
+        // Add bottom navigation bar logic
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.nav_profile); // highlight profile
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                Intent homeIntent = new Intent(ProfileActivity.this, CustomerDashboard.class);
+                startActivity(homeIntent);
+                return true;
+            } else if (itemId == R.id.nav_cart) {
+                Intent cartIntent = new Intent(ProfileActivity.this, CartActivity.class);
+                startActivity(cartIntent);
+                return true;
+            } else if (itemId == R.id.nav_orders) {
+                Intent ordersIntent = new Intent(ProfileActivity.this, OrdersActivity.class);
+                startActivity(ordersIntent);
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                // Already in profile
+                return true;
+            }
+            return false;
+        });
     }
 
     private void loadUserDetails() {
